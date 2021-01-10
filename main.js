@@ -6,32 +6,31 @@ const dbDriver = require("./dbDriver");
 
 const port = 3000;
 
-// register modules from modules folder
-const modulesList = [];
-const modulesFolder = "./modules/";
+// register plugins from plugins folder
+const pluginsList = [];
+const pluginsFolder = "./plugins/";
 
-fs.readdirSync(modulesFolder).forEach((file) => {
-  const path = `${modulesFolder}${file}`;
+fs.readdirSync(pluginsFolder).forEach((file) => {
+  const path = `${pluginsFolder}${file}`;
 
   if (fs.statSync(path).isFile()) {
-    const moduleClass = require(path);
-    const moduleInstance = new moduleClass(dbDriver);
+    const pluginClass = require(path);
+    const pluginInstance = new pluginClass(dbDriver);
 
-    const name = moduleInstance.getName();
-    const r = moduleInstance.getRouter();
+    const name = pluginInstance.getName();
 
-    app.use(r);
-    modulesList.push(name);
+    app.use(pluginInstance.getRouter());
+    pluginsList.push(name);
   }
 });
 
-console.log("Installed modules: ", modulesList);
+console.log("Installed plugins: ", pluginsList);
 
 // static directory
 app.use("/images", express.static("database"));
 
-app.get("/modules", (req, res) => {
-  res.send(modulesList);
+app.get("/plugins", (req, res) => {
+  res.send(pluginsList);
 });
 
 app.listen(port, () => {

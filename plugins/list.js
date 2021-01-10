@@ -1,16 +1,16 @@
 const fs = require("fs");
-const BaseModule = require("./static/base");
+const BasePlugin = require("./static/base");
 
-const MODULE_NAME = "list";
+const PLUGIN_NAME = "list";
 
-class ListModule extends BaseModule {
+class ListPlugin extends BasePlugin {
   constructor(db) {
-    super(MODULE_NAME, db);
+    super(PLUGIN_NAME, db);
     this.registerRoutes();
   }
 
   registerRoutes() {
-    this.router.get(`/${MODULE_NAME}`, this.getAllImages);
+    this.router.get(`/${PLUGIN_NAME}`, this.getAllImages);
   }
 
   getAllImages(res, req) {
@@ -20,4 +20,4 @@ class ListModule extends BaseModule {
   }
 }
 
-module.exports = ListModule;
+module.exports = ListPlugin;

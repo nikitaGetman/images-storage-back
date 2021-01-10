@@ -1,16 +1,16 @@
 const fs = require("fs");
-const BaseModule = require("./static/base");
+const BasePlugin = require("./static/base");
 
-const MODULE_NAME = "filters";
+const PLUGIN_NAME = "filters";
 
-class FiltersModule extends BaseModule {
+class FiltersPlugin extends BasePlugin {
   constructor(db) {
-    super(MODULE_NAME, db);
+    super(PLUGIN_NAME, db);
     this.registerRoutes();
   }
 
   registerRoutes() {
-    this.router.get(`/${MODULE_NAME}`, this.getFilteredFiles);
+    this.router.get(`/${PLUGIN_NAME}`, this.getFilteredFiles);
   }
 
   getFilteredFiles(req, res) {
@@ -22,4 +22,4 @@ class FiltersModule extends BaseModule {
   }
 }
 
-module.exports = FiltersModule;
+module.exports = FiltersPlugin;

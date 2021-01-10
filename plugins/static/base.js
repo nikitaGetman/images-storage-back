@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-class BaseModule {
+class BasePlugin {
   constructor(name, db) {
     this.name = name;
     this.router = router;
@@ -17,4 +17,4 @@ class BaseModule {
   }
 }
 
-module.exports = BaseModule;
+module.exports = BasePlugin;
