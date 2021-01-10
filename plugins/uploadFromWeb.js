@@ -6,11 +6,15 @@ const BasePlugin = require("./static/base");
 
 const PLUGIN_NAME = "download-from-web";
 
-function downloadImage(uri, name = uuid.v4(), callback = () => {}) {
+function downloadImage(uri, name = uuid.v4()) {
   const folder = "./database";
   const extension = uri.split(".").pop();
   const filePath = `${folder}/${name}.${extension}`;
-  request(uri).pipe(fs.createWriteStream(filePath)).on("close", callback);
+  request(uri)
+    .pipe(fs.createWriteStream(filePath))
+    .on("close", () => {
+      console.log(`image from ${uri} saved as ${name}.${extension}`);
+    });
 }
 
 class UploadFromWebPlugin extends BasePlugin {
