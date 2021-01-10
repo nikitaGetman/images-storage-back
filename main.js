@@ -1,10 +1,17 @@
 const express = require("express");
-const router = express.Router();
 const fs = require("fs");
 const app = express();
+const fileUpload = require("express-fileupload");
+const bodyParser = require("body-parser");
 const dbDriver = require("./dbDriver");
 
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+// basic middlewares
+app.use("/images", express.static("database"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileUpload({ createParentPath: true }));
 
 // register plugins from plugins folder
 const pluginsList = [];
@@ -25,9 +32,6 @@ fs.readdirSync(pluginsFolder).forEach((file) => {
 });
 
 console.log("Installed plugins: ", pluginsList);
-
-// static directory
-app.use("/images", express.static("database"));
 
 app.get("/plugins", (req, res) => {
   res.send(pluginsList);

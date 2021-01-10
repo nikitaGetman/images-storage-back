@@ -17,7 +17,7 @@ function downloadImage(uri, name = uuid.v4()) {
     });
 }
 
-class UploadFromWebPlugin extends BasePlugin {
+class DownloadFromWebPlugin extends BasePlugin {
   constructor(db) {
     super(PLUGIN_NAME, db);
     this.registerRoutes();
@@ -51,4 +51,4 @@ class UploadFromWebPlugin extends BasePlugin {
   }
 }
 
-module.exports = UploadFromWebPlugin;
+module.exports = DownloadFromWebPlugin;

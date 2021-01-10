@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function addModule(name, toPath = "./modules/") {
+function addModule(name, toPath = "./plugins/") {
   fs.rename(name, `${toPath}${name}`, (err) => {
     if (err) throw err;
     console.log("Module successfully added!");
