@@ -39,7 +39,7 @@ const driver = {
   // user
   async createUser({ login, password, name }) {
     const sql =
-      "INSERT INTO `storage`.`users` (`login`,`password`,`name`) VALUES(?,?,?);";
+      "INSERT INTO `storage`.`users` (`login`,`password`,`name`, `plugins`) VALUES(?,?,?,'');";
     return await this.exec(sql, [login, password, name]);
   },
   async authUser({ login, password }) {
