@@ -1,6 +1,7 @@
 const BasePlugin = require("./static/base");
+const checkAuth = require("../middlewares/checkAuth");
 
-const PLUGIN_NAME = "download-from-user";
+const PLUGIN_NAME = "download-image-from-user";
 
 class DownloadFromUserPlugin extends BasePlugin {
   constructor(db) {
@@ -9,22 +10,18 @@ class DownloadFromUserPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.post(`/${PLUGIN_NAME}`, this.downloadImageFromUser);
+    this.router.post(`/${PLUGIN_NAME}`, checkAuth, this.downloadImageFromUser);
   }
 
   downloadImageFromUser(req, res) {
     try {
       if (!req.files) {
-        res.send({
-          status: false,
-          message: "No file uploaded",
-        });
+        res.send({ error: "No file uploaded" });
       } else {
         const image = req.files.image;
-        image.mv("./database/" + image.name);
+        image.mv(`./database/${req.userId}/` + image.name);
 
         res.send({
-          status: true,
           message: "File is uploaded",
           data: {
             name: image.name,

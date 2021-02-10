@@ -1,7 +1,8 @@
 const fs = require("fs");
+const checkAuth = require("../middlewares/checkAuth");
 const BasePlugin = require("./static/base");
 
-const PLUGIN_NAME = "filters";
+const PLUGIN_NAME = "image-filters";
 
 class FiltersPlugin extends BasePlugin {
   constructor(db) {
@@ -10,12 +11,12 @@ class FiltersPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.get(`/${PLUGIN_NAME}`, this.getFilteredFiles);
+    this.router.get(`/${PLUGIN_NAME}`, checkAuth, this.getFilteredFiles);
   }
 
   getFilteredFiles(req, res) {
     const nameFilter = req.query.name || "";
-    const path = "./database/";
+    const path = `./database/${req.userId}`;
     const files = fs.readdirSync(path);
     const filteredFiles = files.filter((f) => f.includes(nameFilter));
     res.send(filteredFiles);

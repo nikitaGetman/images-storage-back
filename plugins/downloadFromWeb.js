@@ -1,15 +1,15 @@
 const cheerio = require("cheerio");
 const fs = require("fs");
+const checkAuth = require("../middlewares/checkAuth");
 const request = require("request");
 const uuid = require("uuid");
 const BasePlugin = require("./static/base");
 
-const PLUGIN_NAME = "download-from-web";
+const PLUGIN_NAME = "download-images-from-web";
 
-function downloadImage(uri, name = uuid.v4()) {
-  const folder = "./database";
+function downloadImage(uri, toFolder, name = uuid.v4()) {
   const extension = uri.split(".").pop();
-  const filePath = `${folder}/${name}.${extension}`;
+  const filePath = `${toFolder}/${name}.${extension}`;
   request(uri)
     .pipe(fs.createWriteStream(filePath))
     .on("close", () => {
@@ -24,15 +24,14 @@ class DownloadFromWebPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.get(`/${PLUGIN_NAME}`, this.downloadImagesFromUrl);
-    this.router.post(`/${PLUGIN_NAME}`, this.downloadImagesFromUrl);
+    this.router.post(`/${PLUGIN_NAME}`, checkAuth, this.downloadImagesFromUrl);
   }
 
   downloadImagesFromUrl(req, res) {
-    const url = req.params.url || req.query.url;
+    const { url } = req.body;
     const images = [];
 
-    request(url, function (err, _, body) {
+    request(url, (err, _, body) => {
       if (err) throw err;
       const $ = cheerio.load(body);
 
@@ -44,7 +43,8 @@ class DownloadFromWebPlugin extends BasePlugin {
         }
       });
 
-      images.forEach((src) => downloadImage(src));
+      const path = `./database/${req.userId}`;
+      images.forEach((src) => downloadImage(src, path));
 
       res.send(images);
     });

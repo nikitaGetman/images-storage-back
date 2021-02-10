@@ -1,7 +1,8 @@
 const fs = require("fs");
+const checkAuth = require("../middlewares/checkAuth");
 const BasePlugin = require("./static/base");
 
-const PLUGIN_NAME = "list";
+const PLUGIN_NAME = "images-list";
 
 class ListPlugin extends BasePlugin {
   constructor(db) {
@@ -10,13 +11,13 @@ class ListPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.get(`/${PLUGIN_NAME}`, this.getAllImages);
+    this.router.get(`/${PLUGIN_NAME}`, checkAuth, this.getAllImages);
   }
 
-  getAllImages(res, req) {
-    const path = "./database/";
+  getAllImages(req, res) {
+    const path = `./database/${req.userId}`;
     const files = fs.readdirSync(path);
-    req.send(files);
+    res.send(files);
   }
 }
 

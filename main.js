@@ -4,8 +4,9 @@ const app = express();
 const fileUpload = require("express-fileupload");
 const bodyParser = require("body-parser");
 const dbDriver = require("./dbDriver");
+const { port } = require("./config.json");
 
-const port = process.env.PORT || 3000;
+const UserPlugin = require("./plugins/static/user");
 
 // basic middlewares
 app.use("/images", express.static("database"));
@@ -17,6 +18,11 @@ app.use(fileUpload({ createParentPath: true }));
 const pluginsList = [];
 const pluginsFolder = "./plugins/";
 
+const userPlugin = new UserPlugin(dbDriver);
+app.use(userPlugin.getRouter());
+pluginsList.push(userPlugin.getName());
+
+// register dynamic plugins
 fs.readdirSync(pluginsFolder).forEach((file) => {
   const path = `${pluginsFolder}${file}`;
 
@@ -24,10 +30,8 @@ fs.readdirSync(pluginsFolder).forEach((file) => {
     const pluginClass = require(path);
     const pluginInstance = new pluginClass(dbDriver);
 
-    const name = pluginInstance.getName();
-
     app.use(pluginInstance.getRouter());
-    pluginsList.push(name);
+    pluginsList.push(pluginInstance.getName());
   }
 });
 
