@@ -8,9 +8,9 @@ const driver = {
       this.connection = await mysql.createConnection(db);
     } catch (err) {
       if (err.code === "ECONNREFUSED") {
-        console.log("Cannot connect to database");
+        console.error("Cannot connect to database");
       } else {
-        console.log(err);
+        console.error(err);
       }
     }
   },
@@ -20,7 +20,7 @@ const driver = {
   },
   async exec(sql, params) {
     if (!sql) {
-      console.log("EMPTY SQL", params);
+      console.error("EMPTY SQL", params);
       return;
     }
     const conn = await this.getConnection();
@@ -29,7 +29,7 @@ const driver = {
   disconnect() {
     this.connection.end((err) => {
       if (err) {
-        console.log("Error: " + err.message);
+        console.error("Error: " + err.message);
         return;
       }
       console.log("Connection closed.");
@@ -47,10 +47,14 @@ const driver = {
       "SELECT `users`.`id`, `users`.`name` FROM `storage`.`users` WHERE `users`.`login` = ? and `users`.`password` = ?;";
     return await this.exec(sql, [login, password]);
   },
-  async getProfileById(id) {
+  async getUserById(id) {
     const sql =
-      "SELECT  `users`.`name` FROM `storage`.`users` WHERE `users`.`id` = ?;";
+      "SELECT  `users`.`name`, `users`.`plugins` FROM `storage`.`users` WHERE `users`.`id` = ?;";
     return await this.exec(sql, [id]);
+  },
+  async setUserPlugins(id, plugins) {
+    const sql = "UPDATE `storage`.`users` SET `plugins` = ? WHERE `id` = ?;";
+    return await this.exec(sql, [plugins, id]);
   },
 };
 

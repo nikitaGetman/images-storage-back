@@ -8,15 +8,25 @@ const { token } = require("../../config.json");
 const PLUGIN_NAME = "user";
 
 class UserPlugin extends BasePlugin {
-  constructor(db) {
+  constructor(db, plugins) {
     super(PLUGIN_NAME, db);
+    this.plugins = plugins;
     this.registerRoutes();
   }
 
   registerRoutes() {
-    this.router.post(`/${PLUGIN_NAME}/login/`, this.loginRoute);
-    this.router.post(`/${PLUGIN_NAME}/signup/`, this.signupRoute);
-    this.router.get(`/${PLUGIN_NAME}/me/`, checkAuth, this.meRoute);
+    this.router.post(`/${PLUGIN_NAME}/login/`, (req, res) =>
+      this.loginRoute(req, res)
+    );
+    this.router.post(`/${PLUGIN_NAME}/signup/`, (req, res) =>
+      this.signupRoute(req, res)
+    );
+    this.router.get(`/${PLUGIN_NAME}/me/`, checkAuth, (req, res) =>
+      this.meRoute(req, res)
+    );
+    this.router.post(`/${PLUGIN_NAME}/plugins/`, checkAuth, (req, res) =>
+      this.setPluginsRoute(req, res)
+    );
   }
 
   async loginRoute(req, res) {
@@ -39,12 +49,20 @@ class UserPlugin extends BasePlugin {
   }
 
   async meRoute(req, res) {
-    const user = await this.getProfileById(req.userId);
+    const user = await this.getUserById(req.userId);
     if (user) {
       res.send(user);
     } else {
       res.status(401).send({ error: "Cannot get current user." });
     }
+  }
+
+  async setPluginsRoute(req, res) {
+    const updateResult = await this.setUserPlugins(req.userId, req.body);
+    if (!updateResult)
+      return res.status(400).send({ error: "Cannot update user plugins." });
+
+    return res.send({ message: "ok" });
   }
 
   async signin({ login, password }) {
@@ -64,17 +82,40 @@ class UserPlugin extends BasePlugin {
   async signup({ name, login, password }) {
     const [rows] = await dbDriver.createUser({ name, login, password });
 
-    console.log(rows);
+    const dir = `./database/${rows.insertId}/`;
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
 
     return rows.affectedRows > 0;
   }
 
-  async getProfileById(id) {
+  async getUserById(id) {
     if (!id) return null;
 
-    const [rows] = await dbDriver.getProfileById(id);
-    if (rows.length > 0) return rows[0];
+    const [rows] = await dbDriver.getUserById(id);
+    if (rows.length > 0) {
+      const { name, plugins: pluginsBiteString } = rows[0];
+      const plugins = [];
+      pluginsBiteString.split("").forEach((bit, index) => {
+        if (bit === "1") plugins.push(this.plugins[index]);
+      });
+      return { name, plugins };
+    }
     return null;
+  }
+
+  async setUserPlugins(id, { plugins }) {
+    let pluginsBiteString = "";
+    this.plugins.forEach((plugin) => {
+      const isPluginOn = plugins.indexOf(plugin) !== -1;
+      pluginsBiteString = `${pluginsBiteString}${isPluginOn ? 1 : 0}`;
+    });
+
+    if (!id) return null;
+    const [rows] = await dbDriver.setUserPlugins(id, pluginsBiteString);
+
+    return rows.affectedRows > 0;
   }
 }
 

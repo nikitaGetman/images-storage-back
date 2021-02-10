@@ -15,12 +15,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }));
 
 // register plugins from plugins folder
+
 const pluginsList = [];
 const pluginsFolder = "./plugins/";
-
-const userPlugin = new UserPlugin(dbDriver);
-app.use(userPlugin.getRouter());
-pluginsList.push(userPlugin.getName());
 
 // register dynamic plugins
 fs.readdirSync(pluginsFolder).forEach((file) => {
@@ -34,6 +31,9 @@ fs.readdirSync(pluginsFolder).forEach((file) => {
     pluginsList.push(pluginInstance.getName());
   }
 });
+
+const userPlugin = new UserPlugin(dbDriver, pluginsList);
+app.use(userPlugin.getRouter());
 
 console.log("Installed plugins: ", pluginsList);
 

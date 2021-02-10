@@ -11,7 +11,9 @@ class FiltersPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.get(`/${PLUGIN_NAME}`, checkAuth, this.getFilteredFiles);
+    this.router.get(`/${PLUGIN_NAME}`, checkAuth, (req, res) =>
+      this.getFilteredFiles(req, res)
+    );
   }
 
   getFilteredFiles(req, res) {

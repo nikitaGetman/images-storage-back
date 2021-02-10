@@ -24,7 +24,9 @@ class DownloadFromWebPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.post(`/${PLUGIN_NAME}`, checkAuth, this.downloadImagesFromUrl);
+    this.router.post(`/${PLUGIN_NAME}`, checkAuth, (req, res) =>
+      this.downloadImagesFromUrl(req, res)
+    );
   }
 
   downloadImagesFromUrl(req, res) {

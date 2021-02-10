@@ -11,7 +11,9 @@ class ListPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.get(`/${PLUGIN_NAME}`, checkAuth, this.getAllImages);
+    this.router.get(`/${PLUGIN_NAME}`, checkAuth, (req, res) =>
+      this.getAllImages(req, res)
+    );
   }
 
   getAllImages(req, res) {

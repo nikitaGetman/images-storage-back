@@ -10,7 +10,9 @@ class DownloadFromUserPlugin extends BasePlugin {
   }
 
   registerRoutes() {
-    this.router.post(`/${PLUGIN_NAME}`, checkAuth, this.downloadImageFromUser);
+    this.router.post(`/${PLUGIN_NAME}`, checkAuth, (req, res) =>
+      this.downloadImageFromUser(req, res)
+    );
   }
 
   downloadImageFromUser(req, res) {
