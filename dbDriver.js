@@ -48,8 +48,7 @@ const driver = {
     return await this.exec(sql, [login, password]);
   },
   async getUserById(id) {
-    const sql =
-      "SELECT  `users`.`name`, `users`.`plugins` FROM `storage`.`users` WHERE `users`.`id` = ?;";
+    const sql = "SELECT * FROM `storage`.`users` WHERE `users`.`id` = ?;";
     return await this.exec(sql, [id]);
   },
   async setUserPlugins(id, plugins) {

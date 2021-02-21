@@ -62,7 +62,9 @@ class UserPlugin extends BasePlugin {
     if (!updateResult)
       return res.status(400).send({ error: "Cannot update user plugins." });
 
-    return res.send({ message: "ok" });
+    const { plugins } = await this.getUserById(req.userId);
+
+    return res.send({ plugins });
   }
 
   async signin({ login, password }) {
@@ -100,7 +102,7 @@ class UserPlugin extends BasePlugin {
       pluginsBiteString.split("").forEach((bit, index) => {
         if (bit === "1") plugins.push(this.plugins[index]);
       });
-      return { name, plugins };
+      return { name, plugins, id };
     }
     return null;
   }

@@ -34,7 +34,10 @@ class DownloadFromWebPlugin extends BasePlugin {
     const images = [];
 
     request(url, (err, _, body) => {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        throw err;
+      }
       const $ = cheerio.load(body);
 
       $("img").each((_, el) => {
