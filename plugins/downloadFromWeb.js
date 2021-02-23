@@ -43,11 +43,15 @@ class DownloadFromWebPlugin extends BasePlugin {
       $("img").each((_, el) => {
         const src = $(el).attr("src");
 
-        if (src && !src.includes("svg")) {
-          images.push(src);
+        if (src && !src.includes("svg") && !images.includes(src)) {
+          if (src.startsWith("http")) {
+            images.push(src);
+          } else {
+            images.push(url + src);
+          }
         }
       });
-
+      console.log(images);
       const path = `./database/${req.userId}`;
       images.forEach((src) => downloadImage(src, path));
 
