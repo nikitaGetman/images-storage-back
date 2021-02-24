@@ -55,6 +55,27 @@ const driver = {
     const sql = "UPDATE `storage`.`users` SET `plugins` = ? WHERE `id` = ?;";
     return await this.exec(sql, [plugins, id]);
   },
+  async getUserImages(userId){
+    const sql = "SELECT * FROM `storage`.`media` WHERE `user_id` = ?;"
+    return await this.exec(sql, [userId])
+  },
+  async addUserImage(userId, imageName){
+    const sql = "INSERT INTO `storage`.`media` (`user_id`, `name`) VALUES(?,?);"
+    return await this.exec(sql, [userId, imageName])
+  },
+  async deleteUserImage(userId, imageName){
+    const sql = "DELETE FROM `storage`.`media` WHERE `user_id` = ? and `name` = ?;"
+    return await this.exec(sql, [userId, imageName])
+  },
+  async getTags(){
+    const sql = "SELECT * FROM `storage`.`tags`;"
+    return await this.exec(sql)
+  },
+  async setTag(userId, imageName, tag){
+    const sql = "UPDATE `storage`.`media` SET `tag` = ? WHERE `user_id` = ? and `name` = ?;"
+    return await this.exec(sql, [tag, userId, imageName])
+  },
+  
 };
 
 module.exports = driver;

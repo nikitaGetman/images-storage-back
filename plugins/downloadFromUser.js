@@ -15,13 +15,14 @@ class DownloadFromUserPlugin extends BasePlugin {
     );
   }
 
-  downloadImageFromUser(req, res) {
+  async downloadImageFromUser(req, res) {
     try {
       if (!req.files) {
         res.send({ error: "No file uploaded" });
       } else {
         const image = req.files.image;
         image.mv(`./database/${req.userId}/` + image.name);
+        const [rows] = await this.db.addUserImage(req.userId, image.name)
 
         res.send({
           message: "File is uploaded",

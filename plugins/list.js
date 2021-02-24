@@ -1,4 +1,3 @@
-const fs = require("fs");
 const checkAuth = require("../middlewares/checkAuth");
 const BasePlugin = require("./static/base");
 
@@ -16,10 +15,9 @@ class ListPlugin extends BasePlugin {
     );
   }
 
-  getAllImages(req, res) {
-    const path = `./database/${req.userId}`;
-    const files = fs.readdirSync(path);
-    res.send(files);
+  async getAllImages(req, res) {
+    const [rows] = await this.db.getUserImages(req.userId)
+    res.send({media: rows});
   }
 }
 

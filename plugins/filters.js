@@ -16,12 +16,14 @@ class FiltersPlugin extends BasePlugin {
     );
   }
 
-  getFilteredFiles(req, res) {
+  async getFilteredFiles(req, res) {
     const nameFilter = req.query.name || "";
-    const path = `./database/${req.userId}`;
-    const files = fs.readdirSync(path);
-    const filteredFiles = files.filter((f) => f.includes(nameFilter));
-    res.send(filteredFiles);
+    const tagFilter = req.query.tag || null
+    const [rows] = await this.db.getUserImages(req.userId)
+    
+    const filtered = rows.filter(r => r.name.includes(nameFilter)).filter(r => r.tag == tagFilter)
+
+    res.send(filtered);
   }
 }
 

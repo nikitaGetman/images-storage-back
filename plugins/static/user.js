@@ -1,7 +1,6 @@
 const fs = require("fs");
 const BasePlugin = require("./base");
 const checkAuth = require("../../middlewares/checkAuth");
-const dbDriver = require("../../dbDriver");
 const jwt = require("jsonwebtoken");
 const { token } = require("../../config.json");
 
@@ -23,6 +22,12 @@ class UserPlugin extends BasePlugin {
     );
     this.router.get(`/${PLUGIN_NAME}/me/`, checkAuth, (req, res) =>
       this.meRoute(req, res)
+    );
+    this.router.get(`/${PLUGIN_NAME}/tags/`, checkAuth, (req, res) =>
+      this.getTagsRoute(req, res)
+    );
+    this.router.post(`/${PLUGIN_NAME}/image/tag/`, checkAuth, (req, res) =>
+      this.setTagRoute(req, res)
     );
     this.router.post(`/${PLUGIN_NAME}/plugins/`, checkAuth, (req, res) =>
       this.setPluginsRoute(req, res)
@@ -67,10 +72,24 @@ class UserPlugin extends BasePlugin {
     return res.send({ plugins });
   }
 
+  async getTagsRoute(req, res) {
+    const tags = await this.getTags()
+    return res.send({tags})
+  }
+
+  async setTagRoute(req, res){
+    const result = this.setTag(req.userId, req.body)
+    if(result){
+      return res.send(result)
+    } else {
+     return res.status(400).send(token);
+    }
+  }
+
   async signin({ login, password }) {
     if (!login || !password) return { error: "Login or password is missed." };
 
-    const [rows] = await dbDriver.authUser({ login, password });
+    const [rows] = await this.db.authUser({ login, password });
 
     if (rows.length > 0) {
       const user = rows[0];
@@ -82,7 +101,7 @@ class UserPlugin extends BasePlugin {
   }
 
   async signup({ name, login, password }) {
-    const [rows] = await dbDriver.createUser({ name, login, password });
+    const [rows] = await this.db.createUser({ name, login, password });
 
     const dir = `./database/${rows.insertId}/`;
     if (!fs.existsSync(dir)) {
@@ -95,7 +114,7 @@ class UserPlugin extends BasePlugin {
   async getUserById(id) {
     if (!id) return null;
 
-    const [rows] = await dbDriver.getUserById(id);
+    const [rows] = await this.db.getUserById(id);
     if (rows.length > 0) {
       const { name, plugins: pluginsBiteString } = rows[0];
       const plugins = [];
@@ -115,9 +134,19 @@ class UserPlugin extends BasePlugin {
     });
 
     if (!id) return null;
-    const [rows] = await dbDriver.setUserPlugins(id, pluginsBiteString);
+    const [rows] = await this.db.setUserPlugins(id, pluginsBiteString);
 
     return rows.affectedRows > 0;
+  }
+
+  async getTags(){
+    const [rows] = await this.db.getTags();
+    return rows
+  }
+
+  async setTag(userId, { image, tag }){
+    const [rows] = await this.db.setTag(userId, image, tag)
+    return rows
   }
 }
 

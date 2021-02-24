@@ -16,16 +16,17 @@ class DeletePlugin extends BasePlugin {
     );
   }
 
-  deleteImage(req, res) {
+   deleteImage(req, res) {
     const { image } = req.body;
     const filePath = `./database/${req.userId}/${image}`;
 
-    fs.unlink(filePath, (err) => {
+    fs.unlink(filePath, async (err) => {
       if (err && err.code == "ENOENT") {
         res.status(400).send({ error: "No such file." });
       } else if (err) {
         res.status(500).send({ error: err });
       } else {
+        await this.db.deleteUserImage(req.userId, image)
         res.send({ message: "ok" });
       }
     });

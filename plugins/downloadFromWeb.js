@@ -29,7 +29,7 @@ class DownloadFromWebPlugin extends BasePlugin {
     );
   }
 
-  downloadImagesFromUrl(req, res) {
+  async downloadImagesFromUrl(req, res) {
     const { url } = req.body;
     const images = [];
 
@@ -53,7 +53,10 @@ class DownloadFromWebPlugin extends BasePlugin {
       });
       console.log(images);
       const path = `./database/${req.userId}`;
-      images.forEach((src) => downloadImage(src, path));
+      images.forEach(async (src) => {
+        downloadImage(src, path)
+        await this.db.addUserImage(req.userId, image.name)
+      });
 
       res.send(images);
     });
